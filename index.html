@@ -1,605 +1,129 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XML Qaimə Generator</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        .floating-orbs {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .orb {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .orb:nth-child(1) {
-            width: 80px;
-            height: 80px;
-            top: 20%;
-            left: 10%;
-            animation-delay: 0s;
-        }
-
-        .orb:nth-child(2) {
-            width: 120px;
-            height: 120px;
-            top: 60%;
-            right: 10%;
-            animation-delay: 2s;
-        }
-
-        .orb:nth-child(3) {
-            width: 60px;
-            height: 60px;
-            bottom: 20%;
-            left: 50%;
-            animation-delay: 4s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(180deg); }
-        }
-
-        .particles {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.6);
-            animation: sparkle 3s linear infinite;
-        }
-
-        @keyframes sparkle {
-            0% { opacity: 0; transform: translateY(0px); }
-            50% { opacity: 1; }
-            100% { opacity: 0; transform: translateY(-100px); }
-        }
-
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .main-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 40px;
-            width: 100%;
-            max-width: 600px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .card-glow {
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, #667eea, #764ba2, #667eea);
-            border-radius: 24px;
-            z-index: -1;
-            animation: glow 3s ease-in-out infinite;
-        }
-
-        @keyframes glow {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 0.8; }
-        }
-
-        .title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-align: center;
-            margin-bottom: 10px;
-            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #666;
-            font-size: 1.1rem;
-            margin-bottom: 40px;
-            opacity: 0.8;
-        }
-
-        .upload-section {
-            margin-bottom: 30px;
-        }
-
-        .file-input-wrapper {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .file-input-button {
-            display: block;
-            width: 100%;
-            padding: 40px 20px;
-            border: 2px dashed #667eea;
-            border-radius: 16px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: rgba(102, 126, 234, 0.05);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .file-input-button:hover {
-            border-color: #764ba2;
-            background: rgba(118, 75, 162, 0.1);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .file-input-button.active {
-            border-color: #4CAF50;
-            background: rgba(76, 175, 80, 0.1);
-        }
-
-        .upload-icon {
-            font-size: 3rem;
-            display: block;
-            margin-bottom: 15px;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-        }
-
-        .upload-text {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .upload-subtext {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #e0e0e0;
-            border-radius: 3px;
-            overflow: hidden;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .progress-bar.show {
-            opacity: 1;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            width: 0%;
-            transition: width 0.3s ease;
-            border-radius: 3px;
-        }
-
-        .download-button {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-
-        .download-button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .download-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .download-button:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .download-button:hover:not(:disabled):before {
-            left: 100%;
-        }
-
-        .status-message {
-            text-align: center;
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 20px;
-            font-weight: 500;
-            opacity: 0;
-            transform: translateY(10px);
-            transition: all 0.3s ease;
-        }
-
-        .status-message.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .status-message.success {
-            background: rgba(76, 175, 80, 0.1);
-            color: #4CAF50;
-            border: 1px solid rgba(76, 175, 80, 0.2);
-        }
-
-        .status-message.error {
-            background: rgba(244, 67, 54, 0.1);
-            color: #f44336;
-            border: 1px solid rgba(244, 67, 54, 0.2);
-        }
-
-        @media (max-width: 768px) {
-            .main-card {
-                padding: 30px 20px;
-                margin: 10px;
-            }
-            
-            .title {
-                font-size: 2rem;
-            }
-            
-            .upload-icon {
-                font-size: 2.5rem;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>EQF XML Generator</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    textarea { width: 100%; height: 500px; margin-top: 20px; font-family: monospace; white-space: pre; }
+    input, button { padding: 10px; font-size: 16px; margin: 10px 0; }
+  </style>
 </head>
 <body>
-    <div class="floating-orbs">
-        <div class="orb"></div>
-        <div class="orb"></div>
-        <div class="orb"></div>
-    </div>
+  <h2>Excel-dən e-Qaimə XML yarat</h2>
+  <input type="file" id="excelFile" accept=".xlsx" />
+  <button onclick="generateXML()">XML Yarat</button>
+  <textarea id="output" placeholder="XML burada göstəriləcək..."></textarea>
+  <button onclick="downloadXML()">XML Faylını Yüklə</button>
 
-    <div class="particles" id="particles"></div>
+  <script>
+    let excelData = [];
 
-    <div class="container">
-        <div class="main-card">
-            <div class="card-glow"></div>
-            
-            <h1 class="title">XML Qaimə</h1>
-            <p class="subtitle">Excel faylından peşəkar XML qaimə yaradın</p>
+    function escapeXml(unsafe) {
+      return String(unsafe).replace(/&/g, "&amp;")
+                           .replace(/</g, "&lt;")
+                           .replace(/>/g, "&gt;")
+                           .replace(/"/g, "&quot;")
+                           .replace(/'/g, "&apos;");
+    }
 
-            <div class="upload-section">
-                <div class="file-input-wrapper">
-                    <input type="file" id="excelFile" class="file-input" accept=".xlsx,.xls">
-                    <label for="excelFile" class="file-input-button" id="fileLabel">
-                        <span class="upload-icon">📄</span>
-                        <div class="upload-text">Excel faylını seçin və ya buraya atın</div>
-                        <div class="upload-subtext">Yalnız .xlsx və .xls formatları dəstəklənir</div>
-                    </label>
-                </div>
-                
-                <div class="progress-bar" id="progressBar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-            </div>
+    document.getElementById('excelFile').addEventListener('change', function(e) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        excelData = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+        alert("Excel faylı uğurla oxundu!");
+      };
+      reader.readAsArrayBuffer(e.target.files[0]);
+    });
 
-            <button class="download-button" id="downloadBtn" onclick="downloadDemingXML()" disabled>
-                <span>XML Faylı Yarat və Yüklə</span>
-            </button>
+    function generateXML() {
+      if (!excelData.length) {
+        alert("Zəhmət olmasa əvvəlcə Excel faylını yükləyin.");
+        return;
+      }
 
-            <div class="status-message" id="statusMessage"></div>
-        </div>
-    </div>
+      // Qaimə başlığı məlumatları
+      const qaimeKimden = "9900050571";
+      const qaimeKime = "4700182441";
+      const des = "1";
+      const des2 = "1";
+      const ma = "11";
+      const mk = "1";
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script>
-        let metadata = {};
-        let productRows = [];
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+      xml += `<?xml-stylesheet type="text/xsl" href="#stylesheet"?>\n`;
+      xml += `<!DOCTYPE root [\n<!ATTLIST xsl:stylesheet id ID #REQUIRED>\n]>\n`;
+      xml += `<root version="304" kod="QAIME_1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="QAIME_1.xsd">\n`;
 
-        // Create floating particles
-        function createParticles() {
-            const particlesContainer = document.getElementById('particles');
-            for (let i = 0; i < 50; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 3 + 's';
-                particle.style.animationDuration = (Math.random() * 3 + 2) + 's';
-                particlesContainer.appendChild(particle);
-            }
+      xml += `  <qaimeKime>${qaimeKime}</qaimeKime>\n`;
+      xml += `  <qaimeKimden>${qaimeKimden}</qaimeKimden>\n`;
+      xml += `  <ds></ds>\n  <dn></dn>\n`;
+      xml += `  <des>${des}</des>\n  <des2>${des2}</des2>\n`;
+      xml += `  <ma>${ma}</ma>\n  <mk>${mk}</mk>\n`;
+
+      xml += `  <product>\n    <qaimeTable>\n`;
+
+      let total = {
+        c1: 0, c2: 0, c3: 0, c4: 0, c5: 0, c6: 0, c7: 0,
+        c8: 0, c9: 0, c10: 0
+      };
+
+      excelData.forEach((row, idx) => {
+        xml += `      <row no='${idx}'>\n`;
+        for (let i = 1; i <= 17; i++) {
+          const col = `c${i}`;
+          const value = escapeXml(row[col] || "0");
+          xml += `        <${col}>${value}</${col}>\n`;
         }
+        xml += `        <productId>0</productId>\n`;
+        xml += `      </row>\n`;
 
-        createParticles();
+        // Yekunlar üçün toplanan dəyərlər (yalnız bəzi sütunlar)
+        if (row["c1"]) total.c1 += parseFloat(row["c6"] || 0);  // Malın qiyməti
+        if (row["c2"]) total.c2 += parseFloat(row["c8"] || 0);  // Aksiz
+        if (row["c3"]) total.c3 += parseFloat(row["c9"] || 0);  // Cəmi məbləğ
+        if (row["c4"]) total.c4 += parseFloat(row["c10"] || 0); // ƏDV-li məbləğ
+        if (row["c5"]) total.c5 += parseFloat(row["c11"] || 0); // ƏDV-siz
+        if (row["c6"]) total.c6 += parseFloat(row["c12"] || 0); // Azad olunan
+        if (row["c7"]) total.c7 += parseFloat(row["c13"] || 0); // 0 dərəcə
+        if (row["c8"]) total.c8 += parseFloat(row["c14"] || 0); // Ödənilməli ƏDV
+        if (row["c9"]) total.c9 += parseFloat(row["c16"] || 0); // Yekun
+        if (row["c10"]) total.c10 += parseFloat(row["c15"] || 0); // Yol vergisi
+      });
 
-        // Mapping for metadata fields based on your XML structure
-        const metadataMapping = {
-            "Alan tərəfin VÖEN-i:": "qaimeKime",
-            "Alan tərəfin adı:": "qaimeKimeAd", 
-            "Satan tərəfin VÖEN-i:": "qaimeKimden",
-            "Qeyd": "des",
-            "Əlavə qeyd": "des2",
-            "Obyektin adı": "ma",
-            "Obyektin kodu": "mk"
-        };
+      xml += `    </qaimeTable>\n    <qaimeYekunTable>\n      <row>\n`;
+      xml += `        <c1>${total.c1.toFixed(2)}</c1>\n`;
+      xml += `        <c2>${total.c2.toFixed(2)}</c2>\n`;
+      xml += `        <c3>${total.c3.toFixed(2)}</c3>\n`;
+      xml += `        <c4>${total.c4.toFixed(2)}</c4>\n`;
+      xml += `        <c5>${total.c5.toFixed(2)}</c5>\n`;
+      xml += `        <c6>${total.c6.toFixed(2)}</c6>\n`;
+      xml += `        <c7>${total.c7.toFixed(2)}</c7>\n`;
+      xml += `        <c8>${total.c8.toFixed(2)}</c8>\n`;
+      xml += `        <c9>${total.c9.toFixed(2)}</c9>\n`;
+      xml += `        <c10>${total.c10.toFixed(2)}</c10>\n`;
+      xml += `      </row>\n    </qaimeYekunTable>\n  </product>\n</root>`;
 
-        function escapeXML(val) {
-            return String(val || "")
-                .replace(/&/g, "&amp;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&apos;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;");
-        }
+      document.getElementById('output').value = xml;
+    }
+    function downloadXML() {
+  const content = document.getElementById('output').value;
+  if (!content.trim()) {
+    alert("XML mətni boşdur. Əvvəlcə XML yaradın.");
+    return;
+  }
 
-        function showStatus(msg, type = 'success') {
-            const el = document.getElementById('statusMessage');
-            el.textContent = msg;
-            el.className = `status-message ${type} show`;
-            setTimeout(() => el.classList.remove('show'), 5000);
-        }
-
-        function showProgress(p) {
-            const bar = document.getElementById('progressBar');
-            const fill = document.getElementById('progressFill');
-            if (p > 0) {
-                bar.classList.add('show');
-                fill.style.width = p + '%';
-            } else {
-                bar.classList.remove('show');
-            }
-        }
-
-        // File input handling
-        document.getElementById('excelFile').addEventListener('change', function (e) {
-            const file = e.target.files[0];
-            const label = document.getElementById('fileLabel');
-            const downloadBtn = document.getElementById('downloadBtn');
-
-            if (!file) return;
-
-            showProgress(10);
-
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                try {
-                    showProgress(30);
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
-                    showProgress(60);
-
-                    // Extract metadata from first 7 rows
-                    metadata = {};
-                    for (let i = 0; i < 7 && i < rows.length; i++) {
-                        const key = rows[i]?.[0]?.toString().trim();
-                        const value = rows[i]?.[1];
-                        if (key && metadataMapping[key]) {
-                            metadata[metadataMapping[key]] = value || "";
-                        }
-                    }
-                    let dataStartRow = 8;
-            for (let i = 8; i < rows.length; i++) {
-                if (rows[i] && rows[i][0] && rows[i][0].toString().trim() !== 'Mal kodu') {
-                    dataStartRow = i;
-                    break;
-                }
-            }
-
-
-                    // Extract product rows (starting from row 8)
-                    productRows = rows.slice(dataStartRow).filter(r => r && r.length > 0 && r[0]);
-
-                    showProgress(100);
-                    setTimeout(() => {
-                        showProgress(0);
-                        label.classList.add('active');
-                        label.innerHTML = `
-                            <span class="upload-icon">✅</span>
-                            <div class="upload-text">Fayl uğurla yükləndi!</div>
-                            <div class="upload-subtext">${file.name}</div>
-                        `;
-                        downloadBtn.disabled = false;
-                        showStatus(`${productRows.length} məhsul tapıldı və emal edildi!`);
-                    }, 500);
-                } catch (err) {
-                    showProgress(0);
-                    showStatus("Fayl oxunarkən xəta baş verdi: " + err.message, "error");
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        });
-
-        // Drag and drop functionality
-        const fileLabel = document.getElementById('fileLabel');
-        
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            fileLabel.addEventListener(eventName, preventDefaults, false);
-        });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            fileLabel.addEventListener(eventName, highlight, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            fileLabel.addEventListener(eventName, unhighlight, false);
-        });
-
-        function highlight(e) {
-            fileLabel.style.borderColor = '#764ba2';
-            fileLabel.style.background = 'rgba(118, 75, 162, 0.1)';
-        }
-
-        function unhighlight(e) {
-            fileLabel.style.borderColor = '#667eea';
-            fileLabel.style.background = 'rgba(102, 126, 234, 0.05)';
-        }
-
-        fileLabel.addEventListener('drop', handleDrop, false);
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            document.getElementById('excelFile').files = files;
-            document.getElementById('excelFile').dispatchEvent(new Event('change'));
-        }
-
-        function downloadDemingXML() {
-            if (productRows.length === 0) {
-                showStatus("Zəhmət olmasa Excel faylı yükləyin.", "error");
-                return;
-            }
-
-            showProgress(20);
-
-            // Build XML with exact structure from your example
-            let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-            xml += `<?xml-stylesheet type="text/xsl" href="#stylesheet"?>\n`;
-            xml += `<!DOCTYPE root [\n<!ATTLIST xsl:stylesheet\nid ID #REQUIRED>\n]>\n`;
-            xml += `<root version ="304" kod= "QAIME_1"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation= "QAIME_1.xsd" >\n`;
-
-            showProgress(40);
-
-            // Add the complete XSLT stylesheet from your example
-            xml += `<xsl:stylesheet id="stylesheet" version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" > <xsl:template match="xsl:stylesheet" /> <xsl:template match="/root"> <html> <head> <style> body {background-color: white; font-family:  Arial, sans-serif; } .paper {padding:5px; } table {width: 100%; font-size: 16px; } table tr td {padding: 10px 15px; text-align: left; width:50%; } .products table {border-collapse: collapse; font-size: 14px; } .products table th, #products table td  {border: 1px solid #000; padding: 10px; } .products table td {width:auto; border: 1px solid #000; text-align:center; } .products table th {text-align:center; } .noPadding {padding: 40px 0px; } .total tr :nth-child(odd) {width:40%; } .total tr :nth-child(even) {width:10%; } </style> </head> <body> <table class="paper"> <tr> <td>Alan tərəfin VÖEN-i:</td> <td><xsl:value-of select="qaimeKime"/></td> </tr> <tr> <td>Alan tərəfin adı:</td> <td><xsl:value-of select="qaimeKimeAd"/></td> </tr> <tr> <td>Satan tərəfin VÖEN-i:</td> <td><xsl:value-of select="qaimeKimden"/></td> </tr> <tr> <td>Qeyd</td> <td><xsl:value-of select="des"/></td> </tr> <tr> <td>Əlavə qeyd</td> <td><xsl:value-of select="des2"/></td> </tr> <tr> <td>Obyektin adı</td> <td><xsl:value-of select="ma"/></td> </tr> <tr> <td>Obyektin kodu</td> <td><xsl:value-of select="mk"/></td> </tr> <tr> <td class="products noPadding" colspan="2"> <table> <thead> <th>Mal kodu</th> <th>Mal adı</th> <th>Bar kod</th> <th>Ölçü vahidi</th> <th>Malın miqdarı</th> <th>Malın buraxılış qiyməti</th> <th>Cəmi qiyməti</th> <th>Aksiz dərəcəsi</th> <th>Aksiz məbləği</th> <th>Cəmi məbləğ</th> <th>ƏDV-yə cəlb edilən məbləğ</th> <th>ƏDV-yə cəlb edilməyən məbləğ</th> <th>ƏDV-dən azad olunan</th> <th>ƏDV-yə 0 dərəcə ilə cəlb edilən məbləğ</th> <th>Ödənilməli ƏDV</th> <th>Yol vergisi məbləği</th> <th>Yekun məbləğ</th> </thead> <tbody class="productTable"> <xsl:for-each select="product/qaimeTable/row"> <tr> <td><xsl:value-of select="c1"/></td> <td><xsl:value-of select="c2"/></td> <td><xsl:value-of select="c17"/></td> <td><xsl:value-of select="c3"/></td> <td><xsl:value-of select="c4"/></td> <td><xsl:value-of select="c5"/></td> <td><xsl:value-of select="c6"/></td> <td><xsl:value-of select="c7"/></td> <td><xsl:value-of select="c8"/></td> <td><xsl:value-of select="c9"/></td> <td><xsl:value-of select="c10"/></td> <td><xsl:value-of select="c11"/></td> <td><xsl:value-of select="c12"/></td> <td><xsl:value-of select="c13"/></td> <td><xsl:value-of select="c14"/></td> <td><xsl:value-of select="c15"/></td> <td><xsl:value-of select="c16"/></td> </tr> </xsl:for-each> </tbody> </table> </td> </tr> </table> <table class="total"> <tr> <td>Malların cəmi qiyməti</td> <td><xsl:value-of select="product/qaimeYekunTable/row/c1"/></td> <td>Malların cəmi məbləği</td> <td><xsl:value-of select="product/qaimeYekunTable/row/c3"/></td> </tr> <tr> <td>Malların aksiz cəmi məbləği</td> <td><xsl:value-of select="product/qaimeYekunTable/row/c2"/></td> <td>Malların ƏDV-yə cəlb edilən cəmi məbləği</td> <td><xsl:value-of select="product/qaimeYekunTable/row/c4"/></td> </tr> <tr> <td>Malların cəmi ödənilməli ƏDV məbləği</td> <td><xsl:value-of select="product/qaimeYekunTable/row/c8"/></td> <td>Malların  ƏDV-yə cəlb edilməyən cəmi məbləği </td> <td><xsl:value-of select="product/qaimeYekunTable/row/c5"/></td> </tr> <tr> <td>ƏDV-dən azad olunan</td> <td><xsl:value-of select="product/qaimeYekunTable/row/c6"/></td> <td>Malların  ƏDV-yə 0 dərəcə ilə cəlb edilən cəmi məbləği</td> <td><xsl:value-of select="product/qaimeYekunTable/row/c7"/></td> </tr> <tr> <td>Yekun məbləğ</td> <td><xsl:value-of select="product/qaimeYekunTable/row/c9"/></td> <td></td> <td></td> </tr> </table> </body> </html> </xsl:template> </xsl:stylesheet>\t`;
-
-            showProgress(60);
-
-            // Add metadata
-            Object.entries(metadata).forEach(([key, value]) => {
-                xml += `<${key}>${escapeXML(value)}</${key}>\n\t`;
-            });
-
-            // Add ds and dn empty elements
-            xml += `<ds></ds>\n\t<dn></dn>\n\t`;
-
-            showProgress(80);
-
-            // Add product data
-            xml += `<product>\n\t\t<qaimeTable>\n`;
-            
-            productRows.forEach((row, idx) => {
-                xml += `\t\t\t<row no = '${idx}'>\n`;
-                
-                // Map Excel columns to XML structure (c1-c17)
-                for (let i = 0; i < 17; i++) {
-                    const value = row[i] || "";
-                    xml += `\t\t\t\t<c${i + 1}>${escapeXML(value)}</c${i + 1}>\n`;
-                }
-                
-                xml += `\t\t\t\t<productId>0</productId>\n`;
-                xml += `\t\t\t</row>\n`;
-            });
-            
-            xml += `\t\t</qaimeTable>\n`;
-
-            // Calculate totals
-            const totals = {
-                c1: 0, c2: 0, c3: 0, c4: 0, c5: 0,
-                c6: 0, c7: 0, c8: 0, c9: 0, c10: 0
-            };
-
-            productRows.forEach(row => {
-    totals.c1 += parseFloat(row[5]) || 0;  // Buraxılış qiyməti
-    totals.c2 += parseFloat(row[7]) || 0;  // Aksiz məbləği
-    totals.c3 += parseFloat(row[6]) || 0;  // Cəmi qiymət
-    totals.c4 += parseFloat(row[9]) || 0;  // ƏDV-yə cəlb edilən
-    totals.c5 += parseFloat(row[10]) || 0; // ƏDV-yə cəlb edilməyən
-    totals.c6 += parseFloat(row[11]) || 0; // ƏDV-dən azad
-    totals.c7 += parseFloat(row[12]) || 0; // ƏDV 0%
-    totals.c8 += parseFloat(row[13]) || 0; // Ödəniləcək ƏDV
-    totals.c9 += parseFloat(row[15]) || 0; // Yol vergisi (row[15] - row[16] deyil)
-    totals.c10 += parseFloat(row[16]) || 0; // Yekun məbləğ (row[16] - row[15] deyil)
-});
-
-xml += `\t\t<qaimeYekunTable>\n\t\t\t<row>\n`;
-for (let i = 1; i <= 10; i++) {
-    xml += `\t\t\t\t<c${i}>${totals[`c${i}`].toFixed(2)}</c${i}>\n`;
+  const blob = new Blob([content], { type: 'application/xml' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'e-qaimə.xml';  // istəyə görə ad dəyişə bilər
+  link.click();
 }
-xml += `\t\t\t</row>\n\t\t</qaimeYekunTable>\n\t</product>\n`;
-            xml += `</root>`;
 
-            showProgress(100);
-
-            // Create and download file
-            const blob = new Blob([xml], { type: "application/xml;charset=utf-8" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "Deming_qaime.xml";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            setTimeout(() => {
-                showProgress(0);
-                showStatus("XML faylı uğurla yaradıldı və yükləndi!");
-            }, 1000);
-        }
-    </script>
+  </script>
 </body>
 </html>
