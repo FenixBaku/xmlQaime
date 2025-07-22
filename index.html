@@ -1,129 +1,560 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-  <meta charset="UTF-8" />
-  <title>EQF XML Generator</title>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <style>
-    body { font-family: Arial; padding: 20px; }
-    textarea { width: 100%; height: 500px; margin-top: 20px; font-family: monospace; white-space: pre; }
-    input, button { padding: 10px; font-size: 16px; margin: 10px 0; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel-dən XML Qaime Yaradıcısı</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .upload-section.dragover {
+            border-color: #667eea;
+            background: #e3f2fd;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-top: 20px;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .form-section {
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .table-section {
+            margin: 30px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            padding: 12px 8px;
+            border: 1px solid #dee2e6;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .data-table td {
+            padding: 10px 8px;
+            border: 1px solid #dee2e6;
+            text-align: center;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-  <h2>Excel-dən e-Qaimə XML yarat</h2>
-  <input type="file" id="excelFile" accept=".xlsx" />
-  <button onclick="generateXML()">XML Yarat</button>
-  <textarea id="output" placeholder="XML burada göstəriləcək..."></textarea>
-  <button onclick="downloadXML()">XML Faylını Yüklə</button>
+    <div class="container">
+        <div class="header">
+            <h1>Excel-dən XML Qaime Yaradıcısı</h1>
+            <p>Excel faylınızı yükləyin və XML qaime yaradın</p>
+        </div>
 
-  <script>
-    let excelData = [];
+        <div class="content">
+            <!-- Upload Section -->
+            <div class="upload-section" id="uploadSection">
+                <div class="upload-icon">📊</div>
+                <h3>Excel Faylını Yükləyin</h3>
+                <p>Excel faylınızı seçin və ya buraya sürükləyin</p>
+                <input type="file" id="excelFile" class="file-input" accept=".xlsx,.xls">
+                <button class="upload-btn" onclick="document.getElementById('excelFile').click()">
+                    Fayl Seç
+                </button>
+            </div>
 
-    function escapeXml(unsafe) {
-      return String(unsafe).replace(/&/g, "&amp;")
-                           .replace(/</g, "&lt;")
-                           .replace(/>/g, "&gt;")
-                           .replace(/"/g, "&quot;")
-                           .replace(/'/g, "&apos;");
-    }
+            <!-- Form Section -->
+            <div class="form-section" id="formSection">
+                <h3>Qaime Məlumatları</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="qaimeKime">Alan tərəfin VÖEN-i:</label>
+                        <input type="text" id="qaimeKime" placeholder="VÖEN daxil edin">
+                    </div>
+                    <div class="form-group">
+                        <label for="qaimeKimeAd">Alan tərəfin adı:</label>
+                        <input type="text" id="qaimeKimeAd" placeholder="Şirkət adı">
+                    </div>
+                    <div class="form-group">
+                        <label for="qaimeKimden">Satan tərəfin VÖEN-i:</label>
+                        <input type="text" id="qaimeKimden" placeholder="VÖEN daxil edin">
+                    </div>
+                    <div class="form-group">
+                        <label for="ma">Obyektin adı:</label>
+                        <input type="text" id="ma" placeholder="Obyekt adı">
+                    </div>
+                    <div class="form-group">
+                        <label for="mk">Obyektin kodu:</label>
+                        <input type="text" id="mk" placeholder="Obyekt kodu">
+                    </div>
+                    <div class="form-group">
+                        <label for="des">Qeyd:</label>
+                        <textarea id="des" rows="3" placeholder="Qeyd daxil edin"></textarea>
+                    </div>
+                </div>
 
-    document.getElementById('excelFile').addEventListener('change', function(e) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        excelData = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-        alert("Excel faylı uğurla oxundu!");
-      };
-      reader.readAsArrayBuffer(e.target.files[0]);
-    });
+                <!-- Table Section -->
+                <div class="table-section" id="tableSection" style="display: none;">
+                    <table class="data-table" id="dataTable">
+                        <thead>
+                            <tr>
+                                <th>Mal kodu</th>
+                                <th>Mal adı</th>
+                                <th>Ölçü vahidi</th>
+                                <th>Miqdar</th>
+                                <th>Qiyməti</th>
+                                <th>Cəmi</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
 
-    function generateXML() {
-      if (!excelData.length) {
-        alert("Zəhmət olmasa əvvəlcə Excel faylını yükləyin.");
-        return;
-      }
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>XML faylı yaradılır...</p>
+                </div>
 
-      // Qaimə başlığı məlumatları
-      const qaimeKimden = "9900050571";
-      const qaimeKime = "4700182441";
-      const des = "1";
-      const des2 = "1";
-      const ma = "11";
-      const mk = "1";
+                <button class="generate-btn" id="generateBtn" onclick="generateXML()">
+                    XML Faylı Yarat və Yüklə
+                </button>
 
-      let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-      xml += `<?xml-stylesheet type="text/xsl" href="#stylesheet"?>\n`;
-      xml += `<!DOCTYPE root [\n<!ATTLIST xsl:stylesheet id ID #REQUIRED>\n]>\n`;
-      xml += `<root version="304" kod="QAIME_1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="QAIME_1.xsd">\n`;
+                <div class="status" id="status" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
 
-      xml += `  <qaimeKime>${qaimeKime}</qaimeKime>\n`;
-      xml += `  <qaimeKimden>${qaimeKimden}</qaimeKimden>\n`;
-      xml += `  <ds></ds>\n  <dn></dn>\n`;
-      xml += `  <des>${des}</des>\n  <des2>${des2}</des2>\n`;
-      xml += `  <ma>${ma}</ma>\n  <mk>${mk}</mk>\n`;
+    <script>
+        let excelData = [];
+        
+        // File upload handling
+        document.getElementById('excelFile').addEventListener('change', handleFile);
+        
+        // Drag and drop functionality
+        const uploadSection = document.getElementById('uploadSection');
+        
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
+        
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('dragover');
+        });
+        
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile({ target: { files: files } });
+            }
+        });
 
-      xml += `  <product>\n    <qaimeTable>\n`;
+        function handleFile(e) {
+            const file = e.target.files[0];
+            if (!file) return;
 
-      let total = {
-        c1: 0, c2: 0, c3: 0, c4: 0, c5: 0, c6: 0, c7: 0,
-        c8: 0, c9: 0, c10: 0
-      };
+            showStatus('Excel faylı oxunur...', 'success');
 
-      excelData.forEach((row, idx) => {
-        xml += `      <row no='${idx}'>\n`;
-        for (let i = 1; i <= 17; i++) {
-          const col = `c${i}`;
-          const value = escapeXml(row[col] || "0");
-          xml += `        <${col}>${value}</${col}>\n`;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    
+                    // Convert to JSON
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    
+                    if (jsonData.length < 2) {
+                        showStatus('Excel faylında kifayət qədər məlumat yoxdur', 'error');
+                        return;
+                    }
+
+                    processExcelData(jsonData);
+                    showFormSection();
+                    showStatus('Excel faylı uğurla oxundu', 'success');
+                    
+                } catch (error) {
+                    showStatus('Excel faylını oxumaqda xəta: ' + error.message, 'error');
+                }
+            };
+            reader.readAsArrayBuffer(file);
         }
-        xml += `        <productId>0</productId>\n`;
-        xml += `      </row>\n`;
 
-        // Yekunlar üçün toplanan dəyərlər (yalnız bəzi sütunlar)
-        if (row["c1"]) total.c1 += parseFloat(row["c6"] || 0);  // Malın qiyməti
-        if (row["c2"]) total.c2 += parseFloat(row["c8"] || 0);  // Aksiz
-        if (row["c3"]) total.c3 += parseFloat(row["c9"] || 0);  // Cəmi məbləğ
-        if (row["c4"]) total.c4 += parseFloat(row["c10"] || 0); // ƏDV-li məbləğ
-        if (row["c5"]) total.c5 += parseFloat(row["c11"] || 0); // ƏDV-siz
-        if (row["c6"]) total.c6 += parseFloat(row["c12"] || 0); // Azad olunan
-        if (row["c7"]) total.c7 += parseFloat(row["c13"] || 0); // 0 dərəcə
-        if (row["c8"]) total.c8 += parseFloat(row["c14"] || 0); // Ödənilməli ƏDV
-        if (row["c9"]) total.c9 += parseFloat(row["c16"] || 0); // Yekun
-        if (row["c10"]) total.c10 += parseFloat(row["c15"] || 0); // Yol vergisi
-      });
+        function processExcelData(data) {
+            // Skip header row and process data
+            const headers = data[0];
+            excelData = [];
+            
+            for (let i = 1; i < data.length; i++) {
+                const row = data[i];
+                if (row.length > 0 && row[0]) { // Skip empty rows
+                    excelData.push({
+                        malKodu: row[0] || '9984112910',
+                        malAdi: row[1] || 'Mal adı',
+                        olcuVahidi: row[2] || 'ədəd',
+                        miqdar: row[3] || 1,
+                        qiymet: row[4] || 0,
+                        cemi: row[5] || (row[3] * row[4]) || 0,
+                        barKod: row[6] || '0'
+                    });
+                }
+            }
 
-      xml += `    </qaimeTable>\n    <qaimeYekunTable>\n      <row>\n`;
-      xml += `        <c1>${total.c1.toFixed(2)}</c1>\n`;
-      xml += `        <c2>${total.c2.toFixed(2)}</c2>\n`;
-      xml += `        <c3>${total.c3.toFixed(2)}</c3>\n`;
-      xml += `        <c4>${total.c4.toFixed(2)}</c4>\n`;
-      xml += `        <c5>${total.c5.toFixed(2)}</c5>\n`;
-      xml += `        <c6>${total.c6.toFixed(2)}</c6>\n`;
-      xml += `        <c7>${total.c7.toFixed(2)}</c7>\n`;
-      xml += `        <c8>${total.c8.toFixed(2)}</c8>\n`;
-      xml += `        <c9>${total.c9.toFixed(2)}</c9>\n`;
-      xml += `        <c10>${total.c10.toFixed(2)}</c10>\n`;
-      xml += `      </row>\n    </qaimeYekunTable>\n  </product>\n</root>`;
+            displayDataTable();
+        }
 
-      document.getElementById('output').value = xml;
-    }
-    function downloadXML() {
-  const content = document.getElementById('output').value;
-  if (!content.trim()) {
-    alert("XML mətni boşdur. Əvvəlcə XML yaradın.");
-    return;
-  }
+        function displayDataTable() {
+            const tableSection = document.getElementById('tableSection');
+            const tbody = document.querySelector('#dataTable tbody');
+            
+            tbody.innerHTML = '';
+            
+            excelData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.malKodu}</td>
+                    <td>${item.malAdi}</td>
+                    <td>${item.olcuVahidi}</td>
+                    <td>${item.miqdar}</td>
+                    <td>${item.qiymet}</td>
+                    <td>${item.cemi}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            tableSection.style.display = 'block';
+        }
 
-  const blob = new Blob([content], { type: 'application/xml' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'e-qaimə.xml';  // istəyə görə ad dəyişə bilər
-  link.click();
-}
+        function showFormSection() {
+            document.getElementById('formSection').style.display = 'block';
+        }
 
-  </script>
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    status.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function generateXML() {
+            if (excelData.length === 0) {
+                showStatus('Zəhmət olmasa əvvəlcə Excel faylını yükləyin', 'error');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('generateBtn').disabled = true;
+
+            setTimeout(() => {
+                try {
+                    const xml = createXMLContent();
+                    downloadXML(xml);
+                    showStatus('XML faylı uğurla yaradıldı və yükləndi', 'success');
+                } catch (error) {
+                    showStatus('XML yaradılarkən xəta: ' + error.message, 'error');
+                } finally {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('generateBtn').disabled = false;
+                }
+            }, 1000);
+        }
+
+        function createXMLContent() {
+            const qaimeKime = document.getElementById('qaimeKime').value || '1604489411';
+            const qaimeKimeAd = document.getElementById('qaimeKimeAd').value || 'ŞIRKƏT ADI';
+            const qaimeKimden = document.getElementById('qaimeKimden').value || '1506569941';
+            const ma = document.getElementById('ma').value || 'OBYEKT ADI';
+            const mk = document.getElementById('mk').value || '';
+            const des = document.getElementById('des').value || 'Qaime qeydi';
+
+            let totalPrice = 0;
+            let totalAmount = 0;
+
+            // Generate product rows
+            let productRows = '';
+            excelData.forEach((item, index) => {
+                const cemi = parseFloat(item.cemi) || 0;
+                totalPrice += cemi;
+                totalAmount += cemi;
+
+                productRows += `
+			<row no='${index}'>
+				<c1>${item.malKodu}</c1>
+				<c2>${item.malAdi}</c2>
+				<c3>${item.olcuVahidi}</c3>
+				<c4>${item.miqdar}</c4>
+				<c5>${item.qiymet}</c5>
+				<c6>${cemi.toFixed(4)}</c6>
+				<c7>0</c7>
+				<c8>0</c8>
+				<c9>${cemi.toFixed(4)}</c9>
+				<c10>0</c10>
+				<c11>${cemi}</c11>
+				<c12>0</c12>
+				<c13>0</c13>
+				<c14>0.0000</c14>
+				<c15>0</c15>
+				<c16>${cemi.toFixed(4)}</c16>
+				<c17>${item.barKod}</c17>
+				<productId>0</productId>
+			</row>`;
+            });
+
+            const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="#stylesheet"?>
+<!DOCTYPE root [
+<!ATTLIST xsl:stylesheet
+id ID #REQUIRED>
+]>
+<root version="304" kod="QAIME_1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="QAIME_1.xsd">
+<xsl:stylesheet id="stylesheet" version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"> <xsl:template match="xsl:stylesheet" /> <xsl:template match="/root"> <html> <head> <style> body {background-color: white; font-family: Arial, sans-serif; } .paper {padding:5px; } table {width: 100%; font-size: 16px; } table tr td {padding: 10px 15px; text-align: left; width:50%; } .products table {border-collapse: collapse; font-size: 14px; } .products table th, #products table td {border: 1px solid #000; padding: 10px; } .products table td {width:auto; border: 1px solid #000; text-align:center; } .products table th {text-align:center; } .noPadding {padding: 40px 0px; } .total tr :nth-child(odd) {width:40%; } .total tr :nth-child(even) {width:10%; } </style> </head> <body> <table class="paper"> <tr> <td>Alan tərəfin VÖEN-i:</td> <td><xsl:value-of select="qaimeKime"/></td> </tr> <tr> <td>Alan tərəfin adı:</td> <td><xsl:value-of select="qaimeKimeAd"/></td> </tr> <tr> <td>Satan tərəfin VÖEN-i:</td> <td><xsl:value-of select="qaimeKimden"/></td> </tr> <tr> <td>Qeyd</td> <td><xsl:value-of select="des"/></td> </tr> <tr> <td>Əlavə qeyd</td> <td><xsl:value-of select="des2"/></td> </tr> <tr> <td>Obyektin adı</td> <td><xsl:value-of select="ma"/></td> </tr> <tr> <td>Obyektin kodu</td> <td><xsl:value-of select="mk"/></td> </tr> <tr> <td class="products noPadding" colspan="2"> <table> <thead> <th>Mal kodu</th> <th>Mal adı</th> <th>Bar kod</th> <th>Ölçü vahidi</th> <th>Malın miqdarı</th> <th>Malın buraxılış qiyməti</th> <th>Cəmi qiyməti</th> <th>Aksiz dərəcəsi</th> <th>Aksiz məbləği</th> <th>Cəmi məbləğ</th> <th>ƏDV-yə cəlb edilən məbləğ</th> <th>ƏDV-yə cəlb edilməyən məbləğ</th> <th>ƏDV-dən azad olunan</th> <th>ƏDV-yə 0 dərəcə ilə cəlb edilən məbləğ</th> <th>Ödənilməli ƏDV</th> <th>Yol vergisi məbləği</th> <th>Yekun məbləğ</th> </thead> <tbody class="productTable"> <xsl:for-each select="product/qaimeTable/row"> <tr> <td><xsl:value-of select="c1"/></td> <td><xsl:value-of select="c2"/></td> <td><xsl:value-of select="c17"/></td> <td><xsl:value-of select="c3"/></td> <td><xsl:value-of select="c4"/></td> <td><xsl:value-of select="c5"/></td> <td><xsl:value-of select="c6"/></td> <td><xsl:value-of select="c7"/></td> <td><xsl:value-of select="c8"/></td> <td><xsl:value-of select="c9"/></td> <td><xsl:value-of select="c10"/></td> <td><xsl:value-of select="c11"/></td> <td><xsl:value-of select="c12"/></td> <td><xsl:value-of select="c13"/></td> <td><xsl:value-of select="c14"/></td> <td><xsl:value-of select="c15"/></td> <td><xsl:value-of select="c16"/></td> </tr> </xsl:for-each> </tbody> </table> </td> </tr> </table> <table class="total"> <tr> <td>Malların cəmi qiyməti</td> <td><xsl:value-of select="product/qaimeYekunTable/row/c1"/></td> <td>Malların cəmi məbləği</td> <td><xsl:value-of select="product/qaimeYekunTable/row/c3"/></td> </tr> <tr> <td>Malların aksiz cəmi məbləği</td> <td><xsl:value-of select="product/qaimeYekunTable/row/c2"/></td> <td>Malların ƏDV-yə cəlb edilən cəmi məbləği</td> <td><xsl:value-of select="product/qaimeYekunTable/row/c4"/></td> </tr> <tr> <td>Malların cəmi ödənilməli ƏDV məbləği</td> <td><xsl:value-of select="product/qaimeYekunTable/row/c8"/></td> <td>Malların ƏDV-yə cəlb edilməyən cəmi məbləği </td> <td><xsl:value-of select="product/qaimeYekunTable/row/c5"/></td> </tr> <tr> <td>ƏDV-dən azad olunan</td> <td><xsl:value-of select="product/qaimeYekunTable/row/c6"/></td> <td>Malların ƏDV-yə 0 dərəcə ilə cəlb edilən cəmi məbləği</td> <td><xsl:value-of select="product/qaimeYekunTable/row/c7"/></td> </tr> <tr> <td>Yekun məbləğ</td> <td><xsl:value-of select="product/qaimeYekunTable/row/c9"/></td> <td></td> <td></td> </tr> </table> </body> </html> </xsl:template> </xsl:stylesheet>
+	<qaimeKime>${qaimeKime}</qaimeKime>
+	<qaimeKimden>${qaimeKimden}</qaimeKimden>
+	<qaimeKimeAd>${qaimeKimeAd}</qaimeKimeAd>
+	<ds></ds>
+	<dn></dn>
+	<des>${des}</des>
+	<des2></des2>
+	<ma>${ma}</ma>
+	<mk>${mk}</mk>
+	<product>
+		<qaimeTable>${productRows}
+		</qaimeTable>
+		<qaimeYekunTable>
+			<row>
+				<c1>${totalPrice.toFixed(2)}</c1>
+				<c2>0</c2>
+				<c3>${totalAmount.toFixed(2)}</c3>
+				<c4>0</c4>
+				<c5>${totalAmount.toFixed(2)}</c5>
+				<c6>0</c6>
+				<c7>0</c7>
+				<c8>0.00</c8>
+				<c9>${totalAmount.toFixed(2)}</c9>
+				<c10>0</c10>
+			</row>
+		</qaimeYekunTable>
+	</product>
+</root>`;
+
+            return xml;
+        }
+
+        function downloadXML(xmlContent) {
+            const blob = new Blob([xmlContent], { type: 'application/xml' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `qaime_${new Date().toISOString().slice(0, 10)}.xml`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
 </body>
 </html>
